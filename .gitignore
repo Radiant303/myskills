@@ -1,0 +1,13 @@
+# Codex local state - never commit
+.codex/
+**/.codex/
+
+# Local run output and per-user config
+**/out/
+**/config.json
+**/node_modules/
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

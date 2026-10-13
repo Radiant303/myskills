@@ -1,0 +1,35 @@
+{
+  "greeting": "您好，我是27届本科，求职Java后端/全栈/Agent开发。有两段后端实习，熟悉Spring Boot、MySQL、Redis。方便发您简历看看吗？",
+  "targetCount": 50,
+  "cities": [
+    { "code": "101280600", "name": "深圳" },
+    { "code": "101280100", "name": "广州" },
+    { "code": "101210100", "name": "杭州" },
+    { "code": "101010100", "name": "北京" },
+    { "code": "101020100", "name": "上海" },
+    { "code": "101270100", "name": "成都" },
+    { "code": "101190100", "name": "南京" },
+    { "code": "101200100", "name": "武汉" }
+  ],
+  "queries": [
+    "Java 实习",
+    "Java 2027",
+    "Java 校招",
+    "Java 秋招",
+    "Java开发 实习",
+    "后端开发 实习"
+  ],
+  "titleInclude": ["java"],
+  "freshnessPattern": "2027|2026|实习|校招|应届|在校|秋招|转正",
+  "companySizeAllow": ["20-99人", "100-499人", "500-999人"],
+  "dailyPayFloor": 200,
+  "campusMonthlyFloorK": 7,
+  "salaryMode": "rangeMax",
+  "blockedCompanies": [
+    "腾讯", "字节", "华为", "快手", "京东", "特斯拉", "蔚来", "大疆", "迈瑞",
+    "美团", "阿里巴巴", "网易", "百度", "小米", "OPPO", "vivo", "拼多多",
+    "滴滴", "中兴", "小红书", "顺丰", "深信服", "亚信", "高途", "长亮科技",
+    "海康", "中国移动", "中国电信", "中国联通"
+  ],
+  "outputDir": "./out"
+}

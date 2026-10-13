@@ -1,0 +1,4 @@
+interface:
+  display_name: "BOSS Job Apply"
+  short_description: "Drive a logged-in BOSS直聘 session to filter jobs and send recruiter greetings in bulk."
+  default_prompt: "Use boss-job-apply to filter 2027届 Java jobs by city, salary, and company size, then send my greeting."
