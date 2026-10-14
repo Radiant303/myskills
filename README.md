@@ -52,6 +52,19 @@ Load an extension unpacked in Chrome/Edge:
 3. Click **Load unpacked**
 4. Select the extension folder, e.g. `chrome-extensions/boss-job-apply`
 
+## CI / Releases
+
+Two GitHub Actions workflows run automatically:
+
+- **Lint** — validates every `.json` file and checks JavaScript syntax.
+- **Package Extensions** — zips each folder under `chrome-extensions/`.
+  - On push / PR: zips are uploaded as workflow artifacts.
+  - On a `v*` tag: zips are attached to a GitHub Release.
+
+Download a ready-to-install extension zip from the
+[Releases](https://github.com/caiyuping123456/myskills/releases) page, then
+unzip it and load the folder via `chrome://extensions`.
+
 ## Notes
 
 - `.codex/` is ignored on purpose and must never be committed.
