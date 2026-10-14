@@ -1,0 +1,47 @@
+:host { all: initial; }
+.boss-panel {
+  position: fixed; right: 18px; bottom: 18px; z-index: 2147483646;
+  width: 340px; font-family: -apple-system, "Microsoft YaHei", sans-serif;
+  font-size: 13px; color: #172434; background: #fff;
+  border: 1px solid #d7e1e5; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.16); overflow: hidden;
+}
+.boss-panel.collapsed .body { display: none; }
+.head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: #087f86; color: #fff; font-weight: 700;
+  cursor: move; user-select: none;
+}
+.head .toggle { cursor: pointer; padding: 0 4px; }
+.body { padding: 10px 12px 12px; max-height: 62vh; overflow-y: auto; }
+.field { margin-bottom: 8px; }
+.field label { display: block; margin-bottom: 3px; color: #5b6b7b; font-size: 12px; }
+.field input[type=text], .field input[type=number], .field textarea {
+  width: 100%; box-sizing: border-box; padding: 5px 7px;
+  border: 1px solid #cfd9dd; border-radius: 6px; font-size: 12px;
+  font-family: inherit; color: #172434; background: #fff;
+}
+.field textarea { resize: vertical; min-height: 52px; }
+.row { display: flex; gap: 8px; }
+.row > .field { flex: 1; }
+.checks { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.checks label { display: flex; align-items: center; gap: 4px; color: #172434; font-size: 12px; }
+.btns { display: flex; gap: 8px; margin: 10px 0 6px; }
+.btns button {
+  flex: 1; padding: 7px 0; border: 0; border-radius: 6px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+#start { background: #087f86; color: #fff; }
+#pause { background: #eef2f3; color: #172434; }
+#stop { background: #fdecec; color: #c0392b; }
+.btns button:disabled { opacity: .45; cursor: not-allowed; }
+.status { font-size: 12px; color: #5b6b7b; margin-bottom: 6px; }
+.log {
+  height: 150px; overflow-y: auto; padding: 6px 8px;
+  background: #f7fafb; border: 1px solid #e3ebee; border-radius: 6px;
+  font-size: 12px; line-height: 1.5;
+}
+.log .ok { color: #0a7a4a; }
+.log .skip { color: #8a8f98; }
+.log .err { color: #c0392b; }
+.hint { margin-top: 6px; font-size: 11px; color: #8a8f98; }

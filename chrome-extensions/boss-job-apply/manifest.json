@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "BOSS投递助手",
+  "version": "1.0.0",
+  "description": "在 BOSS 直聘页面内按城市、薪资、公司规模筛选岗位，并批量发送打招呼语。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.zhipin.com/*"
+  ],
+  "action": {
+    "default_title": "BOSS投递助手"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.zhipin.com/web/geek/*"
+      ],
+      "js": [
+        "lib/filters.js",
+        "lib/dom.js",
+        "content/panel.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "content/panel.css"
+      ],
+      "matches": [
+        "https://www.zhipin.com/*"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
