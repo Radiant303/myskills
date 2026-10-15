@@ -5,9 +5,10 @@
 // Usage: node scripts/apply-jobs.mjs [config.json]
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { newTab, closeTab, evalIn, sleep, readJobDetail, clickChat, sendGreeting } from './cdp.mjs';
 
-const configPath = process.argv[2] || new URL('./config.json', import.meta.url).pathname.replace(/^\//, '');
+const configPath = process.argv[2] || fileURLToPath(new URL('./config.json', import.meta.url));
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const outDir = path.resolve(path.dirname(configPath), config.outputDir || './out');
 fs.mkdirSync(outDir, { recursive: true });

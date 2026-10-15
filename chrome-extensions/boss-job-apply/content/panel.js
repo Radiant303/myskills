@@ -14,6 +14,7 @@
     greeting: '您好，我是27届本科，求职Java后端/全栈/Agent开发。有两段后端实习，熟悉Spring Boot、MySQL、Redis。方便发您简历看看吗？',
     titleKeywords: 'java',
     sizeAllow: ['20-99人', '100-499人', '500-999人'],
+    educationAllow: ['本科', '学历不限'],
     dailyPayFloor: 200,
     campusMonthlyFloorK: 7,
     salaryMode: 'rangeMax',
@@ -64,6 +65,7 @@
       <div class="field"><label>公司规模</label>
         <div class="checks" id="sizeChecks"></div>
       </div>
+      <div class="field"><label>岗位学历要求（按要求匹配，非个人最高学历）</label><div class="checks" id="educationChecks"></div><small>学历未知或有歧义时跳过，不推测。</small></div>
       <div class="row">
         <div class="field"><label>日薪下限(元/天)</label><input type="number" id="dailyPayFloor" min="0"></div>
         <div class="field"><label>校招月薪下限(K)</label><input type="number" id="campusMonthlyFloorK" min="0"></div>
@@ -105,8 +107,19 @@
     sizeBox.appendChild(label);
   });
 
+  const educationBox = $('educationChecks');
+  F.EDUCATION_BUCKETS.forEach((value) => {
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = value;
+    label.append(cb, document.createTextNode(value));
+    educationBox.appendChild(label);
+  });
+
   function fillForm() {
     const c = state.config;
+    if (!Array.isArray(c.educationAllow)) c.educationAllow = ['本科', '学历不限'];
+    educationBox.querySelectorAll('input').forEach(cb => { cb.checked = c.educationAllow.includes(cb.value); });
     $('greeting').value = c.greeting;
     $('titleKeywords').value = c.titleKeywords;
     $('targetCount').value = c.targetCount;
@@ -125,6 +138,7 @@
     c.campusMonthlyFloorK = parseInt($('campusMonthlyFloorK').value, 10) || 0;
     c.blockedCompanies = $('blockedCompanies').value.trim();
     c.sizeAllow = Array.from(sizeBox.querySelectorAll('input:checked')).map((cb) => cb.value);
+    c.educationAllow = Array.from(educationBox.querySelectorAll('input:checked')).map(cb => cb.value);
     saveConfig();
     return c;
   }
@@ -170,21 +184,24 @@
   async function openAndRead(card) {
     card.scrollIntoView({ block: 'center' });
     card.click();
-    await wait(2200);
-    const detail = D.readDetail();
-    return detail;
+    return await D.waitForDetail(D.readCard(card), { cancelled: () => state.stop });
   }
 
   async function sendGreeting(message) {
-    const btn = D.findButtonByText(D.SELECTORS.chatButtonText);
+    await waitWhilePaused();
+    if (state.stop) return 'stopped';
+    const btn = D.findButtonByText(D.SELECTORS.chatButtonText, D.selectedRoot() || document);
     if (!btn) return 'no-chat-button';
     btn.click();
     await wait(4500);
+    await waitWhilePaused();
+    if (state.stop) return 'stopped';
     return await D.typeAndSend(message);
   }
 
   async function run() {
     const c = readForm();
+    if (!c.educationAllow.length || !c.greeting) { log('请勾选学历并填写招呼语', 'err'); return; }
     state.running = true; state.paused = false; state.stop = false; state.sent = 0;
     $('start').disabled = true; $('pause').disabled = false; $('stop').disabled = false;
     $('pause').textContent = '暂停';
@@ -193,6 +210,8 @@
     const keywords = c.titleKeywords.split(',').map((s) => s.trim()).filter(Boolean);
     const blocked = blockedList(c);
 
+    // Snapshot once: never loop over the same candidates when nothing is sent.
+    const visited = new Set();
     while (!state.stop && state.sent < c.targetCount) {
       await waitWhilePaused();
       if (state.stop) break;
@@ -206,6 +225,9 @@
         if (state.stop) break;
 
         const job = D.readCard(card);
+        const key = job.href || job.company + job.title;
+        if (visited.has(key)) continue;
+        visited.add(key);
         if (!job.title || !F.titleMatches(job.title, keywords)) continue;
         if (F.isBlocked(job.company, blocked)) {
           log('跳过(大厂) ' + job.company + ' · ' + job.title, 'skip');
@@ -217,19 +239,23 @@
         try {
           const detail = await openAndRead(card);
           const decision = F.evaluateJob(
-            { size: detail.size, salary: detail.salary, campus: detail.campus },
+            { size: detail.size, salary: detail.salary, campus: detail.campus, education: detail.education },
             c
           );
           if (!decision.ok) {
             log('跳过(' + decision.why + ') ' + job.company + ' · ' + job.title, 'skip');
             continue;
           }
+          await waitWhilePaused();
+          if (state.stop) break;
+          log('已核验学历：' + detail.education + ' · ' + job.title);
           const result = await sendGreeting(c.greeting);
           if (result === 'sent' || result === 'already-sent') {
             state.sent++;
             log('已发送 ' + job.company + ' · ' + job.title + ' (' + decision.why + ')', 'ok');
           } else {
-            log('未发送(' + result + ') ' + job.company + ' · ' + job.title, 'err');
+            log('未确认送达(' + result + ') ' + job.company + ' · ' + job.title, 'err');
+            if (result === 'submitted-unverified') { state.stop = true; log('已尝试发送但未确认送达，停止以避免重复发送。', 'err'); }
           }
         } catch (e) {
           log('出错 ' + job.company + ' · ' + job.title + '：' + (e && e.message), 'err');

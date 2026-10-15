@@ -1,6 +1,6 @@
 # boss-job-apply
 
-A Codex skill that automates **BOSS直聘 (zhipin.com)** job filtering and batch recruiter outreach, driving your own logged-in browser session.
+A portable Agent Skill that automates **BOSS直聘 (zhipin.com)** job filtering and batch recruiter outreach, driving your own logged-in browser session.
 
 ## What it does
 
@@ -13,7 +13,7 @@ A Codex skill that automates **BOSS直聘 (zhipin.com)** job filtering and batch
 ## Requirements
 
 - Windows with Microsoft Edge
-- Node.js 18+ (uses the built-in `WebSocket` and `fetch`)
+- Node.js 22+ (uses the built-in `WebSocket` and `fetch`)
 - A BOSS直聘 account you log into yourself
 
 ## Quick start
@@ -63,3 +63,11 @@ Edit `scripts/config.json`:
 
 See `references/boss-dom-and-quirks.md` for the DOM structure, selectors, and
 site-specific quirks (including why this uses raw CDP instead of Playwright).
+
+## Multi-agent import
+
+Download `skill-boss-job-apply.zip`, extract it and keep `boss-job-apply/SKILL.md`, `scripts/` and `references/` together. See [installation and client limitations](references/agent-compatibility.md) for Claude Code, Gemini CLI, Codex and other local agents. Optional `agents/openai.yaml` does not make the skill Codex-only. Import compatibility is not proof of local-browser execution in every client.
+
+## Validation scope
+
+The CLI currently filters size/salary, not education. Use the extension education panel or manually verify each job before outreach. Click-only delivery reporting and automatic retries are not evidence of a sent message; review the target conversation and exact outgoing text.

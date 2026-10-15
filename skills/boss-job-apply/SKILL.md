@@ -1,46 +1,43 @@
 ---
 name: boss-job-apply
-description: Automate BOSS直聘 (zhipin.com) job search and batch outreach. Use when the user wants to filter 2027届/校招/实习 jobs by city, salary, and company size, then send a greeting to recruiters in bulk through their logged-in browser. Only applies to zhipin.com on the user's own account.
+description: Search BOSS直聘 (zhipin.com) jobs and prepare authorized recruiter outreach using the user's logged-in browser. Use for city, salary, company-size and education filtering of campus or internship jobs. Works with Agent Skills-compatible coding agents that can execute local Node.js scripts; not limited to Codex.
 metadata:
-  short-description: BOSS直聘批量筛选与投递自动化
+  short-description: BOSS直聘筛选与授权招呼，跨 Agent 通用
 ---
 
 # BOSS Job Apply
 
-Drive the user's **already logged-in** BOSS直聘 session to filter jobs and send recruiter greetings in bulk. This skill never logs in, never handles credentials, and never bypasses captchas.
+This is a portable Agent Skill: read this file, then run the bundled local scripts. No OpenAI API, model key, Codex CLI or vendor-specific tool is required. Optional `agents/openai.yaml` is UI metadata only; other agents may ignore it.
 
-## Hard boundaries
+## Requirements and scope
 
-- Work only on `zhipin.com`, only with the user's own account, only after they log in themselves.
-- Never enter or store credentials. If a login screen or captcha appears, stop and hand control back to the user.
-- Sending a greeting is an external, irreversible action. Confirm the greeting text, the filters, and the target count with the user before the first send. Reuse that authorization only within the agreed scope.
-- Stop immediately if the site shows risk-control pages, blank pages, or repeated navigation failures.
+- Use a local agent with terminal access and Node.js 22+ (check that global fetch and WebSocket exist). The bundled launcher is Windows/Edge; Chrome or other systems need a user-authorized loopback-only debug browser on port 9222.
+- The user logs in personally. Never read credentials, export browser profiles or bypass captchas. Browser control and shell tools must be allowed by the host agent.
+- Upload/import support is not execution capability: a remote chat-only agent cannot control the user's local browser merely by importing this folder. See [installation and compatibility](references/agent-compatibility.md).
+- Do not change installed agent folders automatically. Do not publish config.json, browser profiles, messages, screenshots or output histories.
 
 ## Workflow
 
-1. **Confirm parameters.** Greeting text, target count, cities, title keywords, company-size range, and salary floor. Defaults live in `scripts/config.example.json`.
-2. **Launch a debuggable browser** with `scripts/launch-edge.ps1` (Edge on port 9222, dedicated profile). Ask the user to log in to BOSS直聘 in that window, then confirm.
-3. **Collect candidates** with `scripts/collect-candidates.mjs`. This writes a deduplicated candidate list of job-detail links.
-4. **Apply** with `scripts/apply-jobs.mjs`. It opens each job detail, reads company size and salary, applies the user's filters, clicks 立即沟通, sends the greeting, and writes resumable progress.
-5. **Report** the applied list and any skipped reasons.
+1. Confirm the exact greeting, cities, job keywords, target count, degree requirements, company sizes and salary interpretation. Use salary **lower bounds** when the user says a minimum; never relax filters to hit a count. Unknown data means skip, not guess.
+2. From this skill's own directory, copy scripts/config.example.json to scripts/config.json, review the user-approved values, and launch scripts/launch-edge.ps1 only if a controlled browser is needed. Ask the user to log in.
+3. Collect candidates: `node scripts/collect-candidates.mjs scripts/config.json`. Verify title, employer, location and graduation eligibility against the selected job, not the search keyword alone.
+4. For education selection in the browser use the extension's 1.1.0+ panel. The CLI scripts currently filter company size and salary, **not education**. If education is a requirement, manually verify each current job first; do not run unattended CLI outreach assuming it filters education.
+5. Sending requires explicit user authorization for this run. The current scripts are a DOM-based baseline: inspect/review the selected conversation before sending and verify the exact outgoing message there afterward. Do not count a button click, an unread counter, or matching text elsewhere in the chat list as a delivered application.
+6. Stop on a changed recipient, missing details, unexpected navigation, login/captcha/risk-control page, ambiguous delivery or repeated errors. Save uncertain items as pending manual review; never automatically resend them.
+7. Report verified **unique new greetings**, prior contacts, skipped jobs, unknown outcomes and unmet target separately. Never describe a greeting as an attachment resume submission.
 
-Run each script with `node` and a config path. Both scripts are resumable and safe to re-run.
+## Running and installation
 
-## Critical implementation notes
+The same SKILL.md, scripts/ and references/ are used for all agents. See [agent-compatibility.md](references/agent-compatibility.md) for Claude Code, Gemini CLI, Codex and manual loading. Use absolute paths resolved from this folder if the host starts elsewhere.
 
-Read `references/boss-dom-and-quirks.md` before editing the scripts. The most important invariants:
+## Browser integration
 
-- Use **raw Chrome DevTools Protocol over WebSocket**, not Playwright. Playwright's `connectOverCDP` plus `browser.close()` kills the user's pages, and BOSS's anti-automation ends the session.
-- Open work tabs with `PUT http://127.0.0.1:9222/json/new?<url-encoded-url>` and close them with `GET /json/close/<id>`. Never navigate the user's primary tab.
-- The 公司规模 filter is a hover-only Vue dropdown that ignores scripted clicks and URL params. **Verify company size per job-detail page instead.**
-- Clicking 立即沟通/继续沟通 on a job-detail page navigates that tab to `/web/geek/chat`. The greeting sometimes auto-sends and sometimes must be typed into `textarea.input` and sent via `button.btn-send`. Handle both cases.
-- The 校园/校招 nav entry redirects to the home page. Use job-search URLs directly.
+[DOM notes](references/boss-dom-and-quirks.md) document observations from earlier sessions, not guaranteed platform behavior. Prefer the bundled CDP helpers; never close the user's entire browser. A navigation error alone is not evidence of anti-bot controls. Re-read the actual page and stop on site restrictions.
 
-## Files
+## Resources
 
-- `scripts/launch-edge.ps1` — start Edge with remote debugging on a dedicated profile.
-- `scripts/cdp.mjs` — shared CDP helpers (tab list/new/close, Runtime.evaluate).
-- `scripts/collect-candidates.mjs` — collect and dedupe job-detail links by city and keyword.
-- `scripts/apply-jobs.mjs` — filter by company size and salary, then send the greeting.
-- `scripts/config.example.json` — copy to `config.json` and edit.
-- `references/boss-dom-and-quirks.md` — selectors, page structure, and site quirks.
+- scripts/launch-edge.ps1: dedicated loopback debug browser; user logs in.
+- scripts/collect-candidates.mjs: candidate collection.
+- scripts/apply-jobs.mjs: existing company-size/salary outreach baseline, requires review and authorization; CLI degree filtering is not implemented.
+- scripts/config.example.json: sample parameters; replace the sample greeting with user-confirmed facts.
+- agents/openai.yaml: optional metadata, not a portability requirement.

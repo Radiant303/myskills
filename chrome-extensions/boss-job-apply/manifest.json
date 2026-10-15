@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "BOSS投递助手",
-  "version": "1.0.0",
-  "description": "在 BOSS 直聘页面内按城市、薪资、公司规模筛选岗位，并批量发送打招呼语。",
+  "version": "1.1.0",
+  "description": "在 BOSS 直聘页面内按学历、薪资和公司规模筛选岗位，仅发送已确认的打招呼语。",
   "permissions": [
     "storage"
   ],

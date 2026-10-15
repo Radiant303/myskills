@@ -1,12 +1,12 @@
 # myskills
 
-A personal collection of [Codex](https://github.com/openai/codex) skills and Chrome extensions.
+A collection of portable Agent Skills and standalone Chrome/Edge extensions.
 
 ## Layout
 
 ```
 myskills/
-├── skills/                    # Codex skills
+├── skills/                    # Portable Agent Skills
 │   └── <skill-name>/
 │       ├── SKILL.md           # required entrypoint
 │       ├── README.md          # optional docs
@@ -31,10 +31,10 @@ frontmatter.
 |-------|-------------|
 | [boss-job-apply](skills/boss-job-apply) | Automate BOSS直聘 job filtering and batch recruiter outreach through a logged-in browser. |
 
-Install a skill by copying its folder into your Codex skills directory:
+Install the same skill folder using your agent's discovery mechanism. See [multi-agent import instructions](skills/boss-job-apply/references/agent-compatibility.md). For example (Claude Code):
 
 ```powershell
-Copy-Item -Recurse skills/boss-job-apply "$env:USERPROFILE\.codex\skills\boss-job-apply"
+Copy-Item -Recurse skills/boss-job-apply "$env:USERPROFILE\.claude\skills\boss-job-apply"
 ```
 
 ## Chrome Extensions
@@ -57,7 +57,7 @@ Load an extension unpacked in Chrome/Edge:
 Two GitHub Actions workflows run automatically:
 
 - **Lint** — validates every `.json` file and checks JavaScript syntax.
-- **Package Extensions** — zips each folder under `chrome-extensions/`.
+- **Package Extensions and Skills** — builds a browser-extension ZIP and a separate Agent Skill ZIP.
   - On push / PR: zips are uploaded as workflow artifacts.
   - On a `v*` tag: zips are attached to a GitHub Release.
 
@@ -70,3 +70,19 @@ unzip it and load the folder via `chrome://extensions`.
 - `.codex/` is ignored on purpose and must never be committed.
 - Per-skill `config.json` and `out/` are gitignored so credentials and local
   results stay out of the repo.
+
+## Download the correct package
+
+- `boss-job-apply.zip`: Chrome/Edge extension; manifest.json at archive root.
+- `skill-boss-job-apply.zip`: portable Agent Skill; extract the whole boss-job-apply folder for your coding agent. No Codex installation or OpenAI API is required. Local terminal/browser access is required.
+
+### Agent import examples
+
+| Client | Example user-level destination |
+|---|---|
+| Claude Code | `~/.claude/skills/boss-job-apply/` |
+| Gemini CLI | `~/.gemini/skills/boss-job-apply/` |
+| Codex | `~/.agents/skills/boss-job-apply/` |
+| Other local agents | Import the whole SKILL.md folder, or explicitly read it and run scripts locally |
+
+These are import paths, not a claim of end-to-end certification in each agent. See the skill compatibility guide for sources and limitations. Installed `.codex/`, `.claude/` and `.gemini/` directories are not modified by this change.

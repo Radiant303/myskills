@@ -11,3 +11,8 @@
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Local release archives and Python caches
+dist/
+__pycache__/
+*.pyc

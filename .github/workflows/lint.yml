@@ -38,3 +38,6 @@ jobs:
             node --check "$f" || fail=1
           done < <(find chrome-extensions skills \( -name '*.js' -o -name '*.mjs' \) -type f 2>/dev/null | sort -u)
           exit $fail
+
+      - name: Education regression tests
+        run: node --test tests/*.test.mjs

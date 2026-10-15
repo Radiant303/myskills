@@ -1,4 +1,4 @@
-name: Package Extensions
+name: Package Extensions and Skills
 
 # Builds a zip for every Chrome extension in the repo.
 # - On push / PR: uploads the zips as workflow artifacts.
@@ -21,21 +21,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Package each extension
-        run: |
-          set -euo pipefail
-          mkdir -p dist
-          for dir in chrome-extensions/*/; do
-            name=$(basename "$dir")
-            echo "Packaging $name"
-            (cd "$dir" && zip -r "../../dist/$name.zip" . -x '*.DS_Store' -x '__MACOSX/*')
-          done
-          ls -la dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Test packaging exclusions
+        run: python tests/package_test.py
+
+      - name: Package extensions and portable skills
+        run: python scripts/package_artifacts.py
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: chrome-extensions
+          name: extensions-and-skills
           path: dist/*.zip
           if-no-files-found: error
 
